@@ -11,5 +11,5 @@ class Car(ABC):
     dist: int
     speed: int
     @abstractmethod
-    def update_speed(self, speed):
+    def update_speed(self, acceleration):
         pass
