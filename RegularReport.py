@@ -1,0 +1,3 @@
+class RegularReport(Report):
+    pass
+

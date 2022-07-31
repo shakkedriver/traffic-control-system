@@ -15,6 +15,6 @@ class NormalCarFactory(CarFactory):
             return None
         else:
             speed = random.randint(5, 15)  # todo make this general
-            car = NormalCar(self.path,0,speed)
+            car = NormalCar(self.path,0,speed,0)
             return car
 

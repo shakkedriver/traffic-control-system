@@ -10,6 +10,7 @@ class Car(ABC):
     path: int
     dist: int
     speed: int
+    age: int
     @abstractmethod
     def update_speed(self, acceleration):
         pass

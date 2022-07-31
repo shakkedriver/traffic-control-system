@@ -12,6 +12,7 @@ class JunctionEnvironment(ABC):
         self.length = length
         # this is a list  of lists of all the cars in the environment each list represents a different paths
         self.cars = [[] for i in range(num_paths)]
+        score = 0
 
     @abstractmethod
     def propergate(self):
@@ -28,3 +29,9 @@ class JunctionEnvironment(ABC):
         :return: a list of tuples with the cars that collided
         """
         pass
+    def get_state(self):
+        #moshe
+        pass
+    def get_score_for_round(self,report):
+        pass
+        #shakked
