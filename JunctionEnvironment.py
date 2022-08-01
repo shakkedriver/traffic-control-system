@@ -42,11 +42,11 @@ class JunctionEnvironment(ABC):
         """
         return the state of the enviorment
         """
-        speed_state = np.full((self.num_paths, self.length), -1)
-        age_state = np.ones(self.num_paths, self.length)
+        speed_state = np.full((self.num_paths, self.length+1), -1)
+        age_state = np.ones((self.num_paths, self.length+1))
         for car in self.cars_iterator():
-            speed_state[car.path][self.length - car.dist] = car.speed
-            age_state[car.path][self.length - car.dist] = car.age
+            speed_state[car.path, car.dist] = car.speed
+            age_state[car.path,car.dist] = car.age
         return speed_state, age_state
 
     @abstractmethod
@@ -54,12 +54,12 @@ class JunctionEnvironment(ABC):
         pass
         # shakked
     def delete_car(self,car):
-        if id(car) not in self.cars[car.path].values():
+        if id(car) not in self.cars[car.path].keys():
             return
         self.cars[car.path].pop(id(car))
 
     def cars_iterator(self):
-        for i in self.num_paths:
+        for i in range(self.num_paths):
             cars = self.cars[i]
             for car in cars.values():
                 yield car

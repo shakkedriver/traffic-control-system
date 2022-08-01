@@ -28,7 +28,7 @@ class NormalEnvironment(JunctionEnvironment):
         collisions = []
         for path in self.cars:
             for first, second in zip(list(path.values()), list(path.values())[1:]):
-                if first.dist >= second.dist:
+                if first.dist <= second.dist:
                     collisions.append((first, second))
         return collisions
 
@@ -60,7 +60,7 @@ class NormalEnvironment(JunctionEnvironment):
             self.delete_car(first)
             self.delete_car(second)
         self.generate_new_cars()
-        late_cars = self.__get_late_cars()
+        late_cars = self.__get_late_cars_and_increment_age()
         return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction,late_cars)
 
     def __move_cars(self):
@@ -85,12 +85,13 @@ class NormalEnvironment(JunctionEnvironment):
                 continue
             path[id(new_car)] = new_car
 
-    def __get_late_cars(self):
+    def __get_late_cars_and_increment_age(self):
         """return a list of all the late cars in the environment"""
         late_cars = []
         for car in self.cars_iterator():
             if car.age>LATE_THRESHOLD:
                 late_cars.append(car)
+            car.age+=1
         return late_cars
 
 

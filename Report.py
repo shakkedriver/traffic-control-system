@@ -5,4 +5,5 @@ from dataclasses import dataclass
 
 
 class Report(ABC):
+    pass
     #michal
