@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 
 class JunctionEnvironment(ABC):
     """
@@ -29,9 +31,19 @@ class JunctionEnvironment(ABC):
         :return: a list of tuples with the cars that collided
         """
         pass
+
     def get_state(self):
         #moshe
-        pass
+        speed_state = np.ones(self.num_paths, self.length)
+        age_state = np.ones(self.num_paths, self.length)
+        speed_state *= -1
+        for i in self.num_paths:
+            cars = self.cars[i]
+            for car in cars:
+                speed_state[car.path][self.length - car.dist] = car.speed
+                age_state[car.path][self.length - car.dist] = car.age
+        return speed_state, age_state
+    
     def get_score_for_round(self,report):
         pass
         #shakked
