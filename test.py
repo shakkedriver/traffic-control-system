@@ -1,7 +1,7 @@
 from NormalEnvironment import NormalEnvironment
 from Display import DisplayGUI
 from DQNAgent import DQNAgent
-
+from LightTrafficAgent import LightTrafficAgent
 
 USE_DISPLAY = True
 
@@ -16,7 +16,8 @@ def main(disp):
 
 if __name__ == '__main__':
     env = NormalEnvironment(4, 150)
-    agent = DQNAgent(env, 0, 0)
+    # agent = DQNAgent(env, 0, 0)
+    agent = LightTrafficAgent(env)
     if not USE_DISPLAY:
         while True:
             r = env.propagate()
