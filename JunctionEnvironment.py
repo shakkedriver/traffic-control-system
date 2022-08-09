@@ -43,7 +43,7 @@ class JunctionEnvironment(ABC):
         return the state of the enviorment
         """
         speed_state = np.full((self.num_paths, self.length+1), -1)
-        age_state = np.ones((self.num_paths, self.length+1))
+        age_state = np.full((self.num_paths, self.length+1),-1)
         for car in self.cars_iterator():
             speed_state[car.path, car.dist] = car.speed
             age_state[car.path,car.dist] = car.age
