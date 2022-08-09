@@ -6,17 +6,17 @@ from RegularReport import RegularReport
 PATH_COLLISION_PENALTY = 900000
 JUNCTION_COLLISION_PENALTY = 900000
 LATE_PENALTY = 30
-LATE_THRESHOLD = 1000  # should be some fraction of the length of the environment #todo
+LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
 
 REWARD_FOR_PASSED_CAR = 500
 
-JUNCTION_SIZE = 50
+JUNCTION_SIZE = 5
 
 
 class NormalEnvironment(JunctionEnvironment):
     def __init__(self, num_paths, length):
         super().__init__(num_paths, length)
-        self.car_factories = [NormalCarFactory(path) for path in range(num_paths)]
+        self.car_factories = [NormalCarFactory(path, 0.1) for path in range(num_paths)]
 
     def check_collisions(self):
         collisions_in_paths = self.__check_collisions_in_paths()
@@ -98,4 +98,4 @@ class NormalEnvironment(JunctionEnvironment):
     def get_score_for_round(self, report: RegularReport):
         return -len(report.collisions_in_paths) * PATH_COLLISION_PENALTY - len(
             report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + len(
-            report.passed_cars) * REWARD_FOR_PASSED_CAR - len(report.late_cars)
+            report.passed_cars) * REWARD_FOR_PASSED_CAR - len(report.late_cars) * LATE_PENALTY

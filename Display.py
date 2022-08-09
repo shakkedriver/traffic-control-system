@@ -44,7 +44,7 @@ CAR_HEIGHT = 1
 CAR_WIDTH = 2
 
 # if True - pauses the animation for a second when there is a collision
-JUNC_COLLISION_PAUSE = False
+JUNC_COLLISION_PAUSE = True
 PATH_COLLISION_PAUSE = False
 
 
