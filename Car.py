@@ -11,6 +11,8 @@ class Car(ABC):
     dist: int
     speed: int
     age: int
+    max_speed: int = 15
+
     @abstractmethod
     def update_speed(self, acceleration):
         pass

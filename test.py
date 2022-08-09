@@ -1,10 +1,12 @@
 from NormalEnvironment import NormalEnvironment
 from Display import DisplayGUI
+from DQNAgent import DQNAgent
 
 
 USE_DISPLAY = True
 
 def main(disp):
+    agent.send_control_signal()
     r = env.propagate()
     e = env.get_state()[0]
     # print(env.get_state()[0])
@@ -13,7 +15,8 @@ def main(disp):
 
 
 if __name__ == '__main__':
-    env = NormalEnvironment(10, 150)
+    env = NormalEnvironment(4, 150)
+    agent = DQNAgent(env, 0, 0)
     if not USE_DISPLAY:
         while True:
             r = env.propagate()
