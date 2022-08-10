@@ -19,6 +19,6 @@ class DQNModel(nn.Module):
         state = self.max_pool(state)
         state = self.relu(self.conv2(state))
         state = self.max_pool(state)
-        return self.linear(torch.flatten(state))
+        return self.linear(torch.flatten(state,1))
 
 

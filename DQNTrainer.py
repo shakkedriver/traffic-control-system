@@ -12,14 +12,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DQNTrainer:
 
-    def __init__(self, nn, exploration_proba, n_actions, n_episodes=500, max_iterations=4000):
+    def __init__(self, nn, exploration_proba, n_actions, n_episodes=500, max_iterations=1000):
         self.n_episodes = n_episodes
         self.max_iterations = max_iterations
         self.exploration_proba = exploration_proba
         self.n_actions = n_actions
 
-        self.policy_net = nn.to(device)
-        self.target_net = DQNModel().to(device)
+        self.policy_net = nn.to(device).double()
+        self.target_net = DQNModel().to(device).double()
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
@@ -48,7 +48,8 @@ class DQNTrainer:
 
             # if total_steps >= batch_size:
             #     agent.train(batch_size=batch_size)
-
+            if total_steps >= BATCH_SIZE:
+                self.optimize_model(actions_lst)
     def create_records(self, car, location, cur_speed, cur_age, cur_path, cur_dist, reward, action, new_speed, new_age, done):
         d = {}
         cur_state = np.array((cur_speed, cur_age, location))
@@ -80,10 +81,10 @@ class DQNTrainer:
         #                                         batch.next_state)), device=device, dtype=torch.bool)
         # non_final_next_states = torch.cat([s for s in batch.next_state
         #                                    if s is not None])
-        state_batch = torch.cat([d["cur_state"] for d in batch])
-        action_batch = torch.cat([d["action"] for d in batch])
-        reward_batch = torch.cat([d["reward"] for d in batch])
-        next_state_batch = torch.cat([d["next_state"] for d in batch])
+        state_batch = torch.stack([torch.tensor(d["cur_state"]) for d in batch]).to(device).double()
+        action_batch = torch.stack([torch.tensor([d["action"]]) for d in batch]).to(device)
+        reward_batch = torch.stack([torch.tensor(d["reward"])for d in batch]).to(device).double()
+        next_state_batch = torch.stack([torch.tensor(d["next_state"]) for d in batch]).to(device).double()
 
         # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
         # columns of actions taken. These are the actions which would've been taken
@@ -110,3 +111,6 @@ class DQNTrainer:
         for param in self.policy_net.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+if __name__ == '__main__':
+    t = DQNTrainer(DQNModel(),0.1,3)
+    t.train()

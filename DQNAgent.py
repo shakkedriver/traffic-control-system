@@ -7,7 +7,7 @@ import torch
 # from NormalEnvironment import NormalEnvironment
 
 ACCELERATION_FACTOR = 2  # todo: to delete - already in normal car
-
+ACTION_LOOKUP = [-1,0,1]
 
 class DQNAgent(Agent):
 
@@ -26,7 +26,7 @@ class DQNAgent(Agent):
             cur_state = np.array((speed_state, age_state, location))
             cur_state[2, car.path, car.dist] = 1
             action = self.compute_action(cur_state)
-            car.update_speed(action * ACCELERATION_FACTOR)
+            car.update_speed(ACTION_LOOKUP[action] * ACCELERATION_FACTOR)
             actions_dict[car] = (action, car.path, car.dist)
         return actions_dict
 
@@ -38,9 +38,9 @@ class DQNAgent(Agent):
         #     we forward the state through the DNN and choose the action
         #     with the highest Q-value.
         if np.random.uniform(0, 1) < self.exploration_proba:
-            return np.random.choice(range(3)) - 1
+            return np.random.choice(range(3))
         q_values = self.model(torch.tensor(current_state).unsqueeze(0).double()).detach().numpy()
-        return np.argmax(q_values) - 1
+        return np.argmax(q_values)
 
     def get_model(self, path):
         model = DQNModel().double()
