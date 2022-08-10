@@ -6,7 +6,7 @@ import torch
 # from DQNTrainer import DQNTrainer
 # from NormalEnvironment import NormalEnvironment
 
-ACCELERATION_FACTOR = 2
+ACCELERATION_FACTOR = 2  # todo: to delete - already in normal car
 
 
 class DQNAgent(Agent):

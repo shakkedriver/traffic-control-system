@@ -9,7 +9,7 @@ class CarFactory(ABC):
         self.path = path
 
     @abstractmethod
-    def create_car(self):
+    def create_car(self, env):
         """
         :return: a new car object or None if no car should be created
         """

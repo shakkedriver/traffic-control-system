@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
+CAR_MAX_SPEED = 10
 # @dataclass
 class Car(ABC):
     """
@@ -13,7 +14,7 @@ class Car(ABC):
     # age: int
     # max_speed: int = 15
 
-    def __init__(self, path, dist, speed, age, max_speed=15):
+    def __init__(self, path, dist, speed, age, max_speed=CAR_MAX_SPEED):
         self.path = path
         self.dist = dist
         self.speed = speed

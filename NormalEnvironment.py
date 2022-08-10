@@ -2,21 +2,32 @@ from JunctionEnvironment import JunctionEnvironment
 from NormalCarFactory import NormalCarFactory
 from itertools import combinations, product
 from RegularReport import RegularReport
+import numpy as np
 
+# reward:
 PATH_COLLISION_PENALTY = 900000
 JUNCTION_COLLISION_PENALTY = 900000
 LATE_PENALTY = 30
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
-
 REWARD_FOR_PASSED_CAR = 500
-
 JUNCTION_SIZE = 5
+
+# frequency parameters:
+MU_OF_CAR_CREATION = 0.2
+SIGMA_OF_CAR_CREATION = 0.2
+MIN_FREQ = 0.03
+MAX_FREQ = 0.3
 
 
 class NormalEnvironment(JunctionEnvironment):
     def __init__(self, num_paths, length):
         super().__init__(num_paths, length)
-        self.car_factories = [NormalCarFactory(path, 0.1) for path in range(num_paths)]
+        self.car_factories = [NormalCarFactory(path, self.get_creation_frequency()) for path in range(num_paths)]
+
+    def get_creation_frequency(self):
+        x = np.random.normal(MU_OF_CAR_CREATION, SIGMA_OF_CAR_CREATION, 1)[0]
+        print(min(max(x, MIN_FREQ), MAX_FREQ))
+        return min(max(x, MIN_FREQ), MAX_FREQ)
 
     def check_collisions(self):
         collisions_in_paths = self.__check_collisions_in_paths()
@@ -80,7 +91,7 @@ class NormalEnvironment(JunctionEnvironment):
         :return:
         """
         for i, path in enumerate(self.cars):
-            new_car = self.car_factories[i].create_car()
+            new_car = self.car_factories[i].create_car(self)
             if not new_car:
                 continue
             path[id(new_car)] = new_car
