@@ -5,12 +5,12 @@ from RegularReport import RegularReport
 import numpy as np
 
 # reward:
-PATH_COLLISION_PENALTY = 900000
-JUNCTION_COLLISION_PENALTY = 900000
+PATH_COLLISION_PENALTY = 900000000
+JUNCTION_COLLISION_PENALTY = 900000000
 LATE_PENALTY = 30
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
 REWARD_FOR_PASSED_CAR = 500
-JUNCTION_SIZE = 5
+JUNCTION_SIZE = 25
 
 # frequency parameters:
 MU_OF_CAR_CREATION = 0.2
@@ -26,7 +26,7 @@ class NormalEnvironment(JunctionEnvironment):
 
     def get_creation_frequency(self):
         x = np.random.normal(MU_OF_CAR_CREATION, SIGMA_OF_CAR_CREATION, 1)[0]
-        print(min(max(x, MIN_FREQ), MAX_FREQ))
+        # print(min(max(x, MIN_FREQ), MAX_FREQ))
         return min(max(x, MIN_FREQ), MAX_FREQ)
 
     def check_collisions(self):
@@ -47,7 +47,7 @@ class NormalEnvironment(JunctionEnvironment):
         """return a list of all the tuples of cars that collided in the junction ie one car was at the junction while
         another was in a different lane """
         result = []
-        cars_in_junction = [[car for car in path.values() if self.length - JUNCTION_SIZE < car.dist < self.length]
+        cars_in_junction = [[car for car in path.values() if self.length - JUNCTION_SIZE < car.dist]
                             for path in self.cars]
         for path1, path2 in combinations(cars_in_junction, 2):
             result += list(product(path1, path2))

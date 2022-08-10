@@ -5,7 +5,7 @@ import torch
 from DQNModel import DQNModel
 import torch.nn as nn
 import torch.optim as optim
-
+import tqdm
 BATCH_SIZE = 128
 GAMMA = 0.95
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,10 +26,11 @@ class DQNTrainer:
 
     def train(self):
         total_steps = 0
-        for episode in range(self.n_episodes):
+        for episode in tqdm.tqdm(range(self.n_episodes)):
             actions_lst = []
             env = NormalEnvironment(4, 150)
             agent = DQNAgent(env, self.exploration_proba, self.n_actions)
+            score = 0
             for iteration in range(self.max_iterations):
                 total_steps += 1
                 cur_speed, cur_age = env.get_state()
@@ -44,12 +45,18 @@ class DQNTrainer:
                                                            actions_dict[car][1], actions_dict[car][2],
                                                            reward, actions_dict[car][0], new_speed,
                                                            new_age, done))
-            # todo: sample randomly
+                score+=reward
+
+
 
             # if total_steps >= batch_size:
             #     agent.train(batch_size=batch_size)
-            if total_steps >= BATCH_SIZE:
-                self.optimize_model(actions_lst)
+                if total_steps >= BATCH_SIZE and iteration%10 == 0:
+                    self.optimize_model(actions_lst)
+
+                    actions_lst = []
+            print(f"score : {score}")
+            torch.save(self.policy_net.state_dict(), "PATH")
     def create_records(self, car, location, cur_speed, cur_age, cur_path, cur_dist, reward, action, new_speed, new_age, done):
         d = {}
         cur_state = np.array((cur_speed, cur_age, location))
@@ -108,9 +115,11 @@ class DQNTrainer:
         # Optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-        for param in self.policy_net.parameters():
-            param.grad.data.clamp_(-1, 1)
+        # for param in self.policy_net.parameters():
+        #     param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+
 if __name__ == '__main__':
     t = DQNTrainer(DQNModel(),0.1,3)
     t.train()

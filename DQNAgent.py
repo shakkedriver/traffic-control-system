@@ -15,7 +15,7 @@ class DQNAgent(Agent):
         super().__init__(env)
         self.exploration_proba = exploration_proba
         self.n_actions = n_actions
-        self.model = self.get_model(None)
+        self.model = self.get_model("PATH")
 
 
     def send_control_signal(self):
