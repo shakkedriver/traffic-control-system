@@ -5,17 +5,17 @@ from RegularReport import RegularReport
 import numpy as np
 
 # reward:
-PATH_COLLISION_PENALTY = 900000000
-JUNCTION_COLLISION_PENALTY = 900000000
-LATE_PENALTY = 30
+PATH_COLLISION_PENALTY = 1000
+JUNCTION_COLLISION_PENALTY = 1000
+LATE_PENALTY = 1e-13
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
-REWARD_FOR_PASSED_CAR = 500
+REWARD_FOR_PASSED_CAR = 1000/150
 JUNCTION_SIZE = 25
 
 # frequency parameters:
 MU_OF_CAR_CREATION = 0.2
 SIGMA_OF_CAR_CREATION = 0.2
-MIN_FREQ = 0.03
+MIN_FREQ = 0.1
 MAX_FREQ = 0.3
 
 
@@ -107,6 +107,7 @@ class NormalEnvironment(JunctionEnvironment):
 
 
     def get_score_for_round(self, report: RegularReport):
+        total_time = sum([car.age for car in self.cars_iterator()])
+        total_speed =sum([car.speed for car in self.cars_iterator()])
         return -len(report.collisions_in_paths) * PATH_COLLISION_PENALTY - len(
-            report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + len(
-            report.passed_cars) * REWARD_FOR_PASSED_CAR - len(report.late_cars) * LATE_PENALTY
+            report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + total_speed * REWARD_FOR_PASSED_CAR - (total_time**4) * LATE_PENALTY

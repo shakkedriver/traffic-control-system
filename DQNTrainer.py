@@ -121,5 +121,5 @@ class DQNTrainer:
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
 if __name__ == '__main__':
-    t = DQNTrainer(DQNModel(),0.1,3)
+    t = DQNTrainer(DQNModel(),0.2,3,2400*3,1000)
     t.train()

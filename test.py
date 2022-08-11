@@ -11,7 +11,7 @@ from LightTrafficAgent import LightTrafficAgent
 from RandomAgent import RandomAgent
 from AcceleratingAgent import AcceleratingAgent
 
-USE_DISPLAY = False
+USE_DISPLAY = True
 
 def main(disp):
     agent.send_control_signal()
@@ -23,12 +23,12 @@ def main(disp):
 
 
 if __name__ == '__main__':
-    random.seed(5)
-    np.random.seed(5)
-    torch.manual_seed(5)
+    random.seed(3)
+    np.random.seed(3)
+    torch.manual_seed(3)
 
     env = NormalEnvironment(4, 150)
-    agent = DQNAgent(env, 0, 0)
+    agent = DQNAgent(env, 0, 3)
     # agent = LightTrafficAgent(env)
     # agent = LightTrafficAgent(env)
     # agent = RandomAgent(env)
@@ -47,5 +47,5 @@ if __name__ == '__main__':
             #print(env.get_state()[0])
             # print(r)
         print(f"{in_path=}, {in_inters=}, {late=}")
-    # displayer = DisplayGUI(env, main)
+    displayer = DisplayGUI(env, main)
 #
