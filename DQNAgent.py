@@ -15,7 +15,7 @@ class DQNAgent(Agent):
         super().__init__(env)
         self.exploration_proba = exploration_proba
         self.n_actions = n_actions
-        self.model = self.get_model("8")
+        self.model = self.get_model("PATH")
 
 
     def send_control_signal(self):
@@ -45,7 +45,7 @@ class DQNAgent(Agent):
     def get_model(self, path):
         model = DQNModel().double()
         if path is not None:
-            model.load_state_dict(torch.load(path))
+            model.load_state_dict(torch.load(path,map_location=torch.device('cpu')))
         return model
         # trainer = DQNTrainer(model, self.exploration_proba, self.n_actions)
         # trainer.train()

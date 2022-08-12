@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 BATCH_SIZE = 128
-GAMMA = 0.95
+GAMMA = 0.96
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class DQNTrainer:
@@ -109,7 +109,7 @@ class DQNTrainer:
         expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
         # Compute Huber loss
-        criterion = nn.SmoothL1Loss()
+        criterion = nn.MSELoss()
         loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
         # Optimize the model
@@ -121,5 +121,5 @@ class DQNTrainer:
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
 if __name__ == '__main__':
-    t = DQNTrainer(DQNModel(),0.2,3,2400*3,1000)
+    t = DQNTrainer(DQNModel(),0.38,3,2400*3,1000)
     t.train()
