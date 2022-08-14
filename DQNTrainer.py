@@ -10,7 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 ROOT_GDRIVE_PATH = "/content/drive/MyDrive/"
-GDRIVE_SAVE_REL_PATH = "traffic-control-system/"
+GDRIVE_SAVE_REL_PATH = "ai project/"
 FULL_GDRIVE_SAVE_PATH = ROOT_GDRIVE_PATH + GDRIVE_SAVE_REL_PATH
 path = lambda x: FULL_GDRIVE_SAVE_PATH+ x
 BATCH_SIZE = 128
@@ -19,6 +19,7 @@ EPS_END = 1
 EPS_START = 0
 EPS_DECAY = 750
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"using {device}")
 
 
 class DQNTrainer:

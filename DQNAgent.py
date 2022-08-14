@@ -1,7 +1,9 @@
+from torch._C import device
 from Agent import Agent
 from DQNModel import DQNModel
 import numpy as np
 import torch
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # from DQNTrainer import DQNTrainer
 # from NormalEnvironment import NormalEnvironment
@@ -39,7 +41,7 @@ class DQNAgent(Agent):
         #     with the highest Q-value.
         if np.random.uniform(0, 1) < self.exploration_proba:
             return np.random.choice(range(3))
-        q_values = self.model(torch.tensor(current_state).unsqueeze(0).double()).detach().numpy()
+        q_values = self.model(torch.tensor(current_state).to(device).unsqueeze(0).double()).detach().cpu().numpy()
         return np.argmax(q_values)
 
     def get_model(self, path):

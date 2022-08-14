@@ -21,7 +21,7 @@ class NormalCarFactory(CarFactory):
         if not generate_car:
             return None
         else:
-            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED, closest_car / 1.5)))#todo
+            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED, closest_car / 1.5)))
             car = NormalCar(self.path,0,speed,0)
             return car
 

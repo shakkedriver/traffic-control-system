@@ -106,7 +106,7 @@ class NormalEnvironment(JunctionEnvironment):
         return late_cars
 
     def get_score_for_round(self, report: RegularReport):
-        total_time = sum(car.age for car in self.cars_iterator())
+        # total_time = sum(car.age for car in self.cars_iterator())
         total_speed = sum(car.speed for car in self.cars_iterator())
         return -len(report.collisions_in_paths) * PATH_COLLISION_PENALTY - len(
             report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + total_speed * REWARD_FOR_SPEED - len(
