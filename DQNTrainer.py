@@ -34,7 +34,7 @@ class DQNTrainer:
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
-        self.memory = ReplayMemory(int(1e7))
+        self.memory = ReplayMemory(int(1e6))
 
     def train(self):
         total_steps = 0
