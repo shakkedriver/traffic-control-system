@@ -9,7 +9,10 @@ from DQNModel import DQNModel
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
-
+ROOT_GDRIVE_PATH = "/content/drive/MyDrive/"
+GDRIVE_SAVE_REL_PATH = "traffic-control-system/"
+FULL_GDRIVE_SAVE_PATH = ROOT_GDRIVE_PATH + GDRIVE_SAVE_REL_PATH
+path = lambda x: FULL_GDRIVE_SAVE_PATH+ x
 BATCH_SIZE = 128
 GAMMA = 0.95
 EPS_END = 1
@@ -65,7 +68,7 @@ class DQNTrainer:
 
             print(f"\nscore : {score}")
             print(f"eps : {self.exploration_proba}")
-            torch.save(self.policy_net.state_dict(), "PATH")
+            torch.save(self.policy_net.state_dict(), path("PATH"))
 
     def create_records(self, car, location, cur_speed, cur_age, cur_path, cur_dist, reward, action, new_speed, new_age,
                        done):
