@@ -1,3 +1,6 @@
+import math
+from collections import deque
+
 from NormalEnvironment import NormalEnvironment
 from DQNAgent import DQNAgent
 import numpy as np
@@ -6,16 +9,21 @@ from DQNModel import DQNModel
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
+
 BATCH_SIZE = 128
-GAMMA = 0.96
+GAMMA = 0.95
+EPS_END = 1
+EPS_START = 0
+EPS_DECAY = 750
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class DQNTrainer:
 
-    def __init__(self, nn, exploration_proba, n_actions, n_episodes=500, max_iterations=1000):
+    def __init__(self, nn, n_actions, n_episodes=500, max_iterations=1000):
         self.n_episodes = n_episodes
         self.max_iterations = max_iterations
-        self.exploration_proba = exploration_proba
+        self.exploration_proba = 1
         self.n_actions = n_actions
 
         self.policy_net = nn.to(device).double()
@@ -23,13 +31,14 @@ class DQNTrainer:
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        self.memory = ReplayMemory(int(1e7))
 
     def train(self):
         total_steps = 0
         for episode in tqdm.tqdm(range(self.n_episodes)):
-            actions_lst = []
-            env = NormalEnvironment(4, 150)
-            agent = DQNAgent(env, self.exploration_proba, self.n_actions)
+            env = NormalEnvironment(2, 150)
+            self.exploration_proba = EPS_START + (EPS_END-EPS_START) * math.exp(-1. * episode / EPS_DECAY)
+            agent = DQNAgent(env, self.exploration_proba, self.n_actions,self.policy_net)
             score = 0
             for iteration in range(self.max_iterations):
                 total_steps += 1
@@ -41,23 +50,25 @@ class DQNTrainer:
                 done = False  # todo: change?
                 location = np.zeros((env.num_paths, env.length + 1))
                 for car in actions_dict:
-                    actions_lst.append(self.create_records(car, location, cur_speed, cur_age,
+                    self.memory.push(self.create_records(car, location, cur_speed, cur_age,
                                                            actions_dict[car][1], actions_dict[car][2],
                                                            reward, actions_dict[car][0], new_speed,
                                                            new_age, done))
-                score+=reward
+                score += reward
+
+                # if total_steps >= batch_size:
+                #     agent.train(batch_size=batch_size)
 
 
+                if total_steps >= BATCH_SIZE:
+                    self.optimize_model(iteration % 4 == 0)
 
-            # if total_steps >= batch_size:
-            #     agent.train(batch_size=batch_size)
-                if total_steps >= BATCH_SIZE and iteration%10 == 0:
-                    self.optimize_model(actions_lst)
-
-                    actions_lst = []
-            print(f"score : {score}")
+            print(f"\nscore : {score}")
+            print(f"eps : {self.exploration_proba}")
             torch.save(self.policy_net.state_dict(), "PATH")
-    def create_records(self, car, location, cur_speed, cur_age, cur_path, cur_dist, reward, action, new_speed, new_age, done):
+
+    def create_records(self, car, location, cur_speed, cur_age, cur_path, cur_dist, reward, action, new_speed, new_age,
+                       done):
         d = {}
         cur_state = np.array((cur_speed, cur_age, location))
         cur_state[2, cur_path, cur_dist] = 1
@@ -73,53 +84,45 @@ class DQNTrainer:
 
         return d
 
-    def optimize_model(self, memory):
-        if len(memory) < BATCH_SIZE:
+    def optimize_model(self, copy_to_target=True):
+        if len(self.memory) < BATCH_SIZE:
             return
-        batch = np.random.choice(memory, BATCH_SIZE, replace=False)
-        # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
-        # detailed explanation). This converts batch-array of Transitions
-        # to Transition of batch-arrays.
-        # batch = Transition(*zip(*transitions))
+        batch = self.memory.sample()
 
-        # Compute a mask of non-final states and concatenate the batch elements
-        # (a final state would've been the one after which simulation ended)
-        # non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
-        #                                         batch.next_state)), device=device, dtype=torch.bool)
-        # non_final_next_states = torch.cat([s for s in batch.next_state
-        #                                    if s is not None])
         state_batch = torch.stack([torch.tensor(d["cur_state"]) for d in batch]).to(device).double()
         action_batch = torch.stack([torch.tensor([d["action"]]) for d in batch]).to(device)
-        reward_batch = torch.stack([torch.tensor(d["reward"])for d in batch]).to(device).double()
+        reward_batch = torch.stack([torch.tensor(d["reward"]) for d in batch]).to(device).double()
         next_state_batch = torch.stack([torch.tensor(d["next_state"]) for d in batch]).to(device).double()
-
-        # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
-        # columns of actions taken. These are the actions which would've been taken
-        # for each batch state according to policy_net
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-
-        # Compute V(s_{t+1}) for all next states.
-        # Expected values of actions for non_final_next_states are computed based
-        # on the "older" target_net; selecting their best reward with max(1)[0].
-        # This is merged based on the mask, such that we'll have either the expected
-        # state value or 0 in case the state was final.
-        # next_state_values = torch.zeros((BATCH_SIZE,), device=device)
         next_state_values = self.target_net(next_state_batch).max(1)[0].detach()
         # Compute the expected Q values
         expected_state_action_values = (next_state_values * GAMMA) + reward_batch
-
-        # Compute Huber loss
         criterion = nn.MSELoss()
         loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
-
         # Optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-        # for param in self.policy_net.parameters():
-        #     param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
-        self.target_net.load_state_dict(self.policy_net.state_dict())
+        if copy_to_target:
+            self.target_net.load_state_dict(self.policy_net.state_dict())
+
+
+class ReplayMemory(object):
+
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+
+    def push(self, record):
+        """Save a transition"""
+        self.memory.append(record)
+
+    def sample(self):
+        return np.random.choice(self.memory, BATCH_SIZE, replace=False)
+
+    def __len__(self):
+        return len(self.memory)
+
 
 if __name__ == '__main__':
-    t = DQNTrainer(DQNModel(),0.38,3,2400*3,1000)
+    t = DQNTrainer(DQNModel(), 3, 2400 * 3, 1000)
     t.train()

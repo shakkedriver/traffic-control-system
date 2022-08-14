@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.distributed.elastic import agent
 
+from DQNModel import DQNModel
 from NormalEnvironment import NormalEnvironment
 from Display import DisplayGUI
 from DQNAgent import DQNAgent
@@ -13,6 +14,12 @@ from AcceleratingAgent import AcceleratingAgent
 
 USE_DISPLAY = True
 
+
+def get_model(path):
+    model = DQNModel().double()
+    if path is not None:
+        model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+    return model
 def main(disp):
     agent.send_control_signal()
     r = env.propagate()
@@ -27,8 +34,8 @@ if __name__ == '__main__':
     np.random.seed(3)
     torch.manual_seed(3)
 
-    env = NormalEnvironment(4, 150)
-    agent = DQNAgent(env, 0, 3)
+    env = NormalEnvironment(2, 150)
+    agent = DQNAgent(env, 0, 3,get_model(ttt))
     # agent = LightTrafficAgent(env)
     # agent = LightTrafficAgent(env)
     # agent = RandomAgent(env)

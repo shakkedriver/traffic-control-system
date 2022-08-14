@@ -5,7 +5,7 @@ import numpy as np
 from NormalCar import NormalCar
 from Car import CAR_MAX_SPEED
 NORMAL_CAR_MAX_INIT_SPEED = CAR_MAX_SPEED
-NORMAL_CAR_MIN_INIT_SPEED = 5
+NORMAL_CAR_MIN_INIT_SPEED = 3
 
 
 class NormalCarFactory(CarFactory):
@@ -21,7 +21,7 @@ class NormalCarFactory(CarFactory):
         if not generate_car:
             return None
         else:
-            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED, closest_car / 1.5)))
+            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED-3, closest_car / 1.5)))#todo
             car = NormalCar(self.path,0,speed,0)
             return car
 

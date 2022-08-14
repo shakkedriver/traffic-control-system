@@ -5,13 +5,13 @@ from RegularReport import RegularReport
 import numpy as np
 
 # reward:
-PATH_COLLISION_PENALTY = 5000
-JUNCTION_COLLISION_PENALTY = 5000
-LATE_PENALTY = 1e-5
+PATH_COLLISION_PENALTY = 100000
+JUNCTION_COLLISION_PENALTY = 100000
+LATE_PENALTY = 25
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
-REWARD_FOR_PASSED_CAR = 1000/150
+REWARD_FOR_SPEED = 1000 / 150
 JUNCTION_SIZE = 25
-
+REWARD_FOR_PASSED_CAR = 1000
 # frequency parameters:
 MU_OF_CAR_CREATION = 0.2
 SIGMA_OF_CAR_CREATION = 0.2
@@ -72,7 +72,7 @@ class NormalEnvironment(JunctionEnvironment):
             self.delete_car(second)
         self.generate_new_cars()
         late_cars = self.__get_late_cars_and_increment_age()
-        return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction,late_cars)
+        return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction, late_cars)
 
     def __move_cars(self):
         """
@@ -100,14 +100,14 @@ class NormalEnvironment(JunctionEnvironment):
         """return a list of all the late cars in the environment"""
         late_cars = []
         for car in self.cars_iterator():
-            if car.age>LATE_THRESHOLD:
+            if car.age > LATE_THRESHOLD:
                 late_cars.append(car)
-            car.age+=1
+            car.age += 1
         return late_cars
-
 
     def get_score_for_round(self, report: RegularReport):
         total_time = sum(car.age for car in self.cars_iterator())
-        total_speed =sum(car.speed for car in self.cars_iterator())
+        total_speed = sum(car.speed for car in self.cars_iterator())
         return -len(report.collisions_in_paths) * PATH_COLLISION_PENALTY - len(
-            report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + total_speed * REWARD_FOR_PASSED_CAR - (total_time**4) * LATE_PENALTY
+            report.collisions_in_Junction) * JUNCTION_COLLISION_PENALTY + total_speed * REWARD_FOR_SPEED - len(
+            report.late_cars) * LATE_PENALTY + len(report.passed_cars) * REWARD_FOR_PASSED_CAR

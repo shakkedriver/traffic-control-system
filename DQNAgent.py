@@ -11,11 +11,11 @@ ACTION_LOOKUP = [-1,0,1]
 
 class DQNAgent(Agent):
 
-    def __init__(self, env, exploration_proba, n_actions):
+    def __init__(self, env, exploration_proba, n_actions,model):
         super().__init__(env)
         self.exploration_proba = exploration_proba
         self.n_actions = n_actions
-        self.model = self.get_model("PATH")
+        self.model = model
 
 
     def send_control_signal(self):
