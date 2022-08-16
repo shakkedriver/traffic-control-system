@@ -6,7 +6,7 @@ from NormalCar import NormalCar
 from Car import CAR_MAX_SPEED
 NORMAL_CAR_MAX_INIT_SPEED = CAR_MAX_SPEED
 NORMAL_CAR_MIN_INIT_SPEED = 3
-
+STOP_NEW_CARS_IF_CLOSE = False
 
 class NormalCarFactory(CarFactory):
     def __init__(self, path, creation_frequency):
@@ -16,12 +16,14 @@ class NormalCarFactory(CarFactory):
     def create_car(self, env):
         generate_car = random.random() < self.creation_frequency
         closest_car = self.get_closest_car_in_path(env)
-        if closest_car / 1.5 <= NORMAL_CAR_MIN_INIT_SPEED:  # last car is too close
-            return None
+        if STOP_NEW_CARS_IF_CLOSE:
+            if closest_car / 1.5 <= NORMAL_CAR_MIN_INIT_SPEED:  # last car is too close
+                return None
         if not generate_car:
             return None
         else:
-            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED, closest_car / 1.5)))
+            # speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, int(min(NORMAL_CAR_MAX_INIT_SPEED, closest_car / 1.5)))
+            speed = random.randint(NORMAL_CAR_MIN_INIT_SPEED, NORMAL_CAR_MAX_INIT_SPEED)
             car = NormalCar(self.path,0,speed,0)
             return car
 

@@ -9,10 +9,11 @@ from DQNModel import DQNModel
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
+
 ROOT_GDRIVE_PATH = "/content/drive/MyDrive/"
 GDRIVE_SAVE_REL_PATH = "ai project/"
 FULL_GDRIVE_SAVE_PATH = ROOT_GDRIVE_PATH + GDRIVE_SAVE_REL_PATH
-path = lambda x: FULL_GDRIVE_SAVE_PATH+ x
+path = lambda x: FULL_GDRIVE_SAVE_PATH + x
 BATCH_SIZE = 128
 GAMMA = 0.95
 EPS_END = 1
@@ -24,10 +25,10 @@ print(f"using {device}")
 
 class DQNTrainer:
 
-    def __init__(self, nn, n_actions, n_episodes=500, max_iterations=1000):
+    def __init__(self, nn, n_actions, n_episodes=100, max_iterations=100):
         self.n_episodes = n_episodes
         self.max_iterations = max_iterations
-        self.exploration_proba = 1
+        self.exploration_proba = 0
         self.n_actions = n_actions
 
         self.policy_net = nn.to(device).double()
@@ -41,8 +42,8 @@ class DQNTrainer:
         total_steps = 0
         for episode in tqdm.tqdm(range(self.n_episodes)):
             env = NormalEnvironment(2, 150)
-            self.exploration_proba = EPS_START + (EPS_END-EPS_START) * math.exp(-1. * episode / EPS_DECAY)
-            agent = DQNAgent(env, self.exploration_proba, self.n_actions,self.policy_net)
+            # self.exploration_proba = EPS_START + (EPS_END-EPS_START) * math.exp(-1. * episode / EPS_DECAY)
+            agent = DQNAgent(env, self.exploration_proba, self.n_actions, self.policy_net)
             score = 0
             for iteration in range(self.max_iterations):
                 total_steps += 1
@@ -55,14 +56,13 @@ class DQNTrainer:
                 location = np.zeros((env.num_paths, env.length + 1))
                 for car in actions_dict:
                     self.memory.push(self.create_records(car, location, cur_speed, cur_age,
-                                                           actions_dict[car][1], actions_dict[car][2],
-                                                           reward, actions_dict[car][0], new_speed,
-                                                           new_age, done))
+                                                         actions_dict[car][1], actions_dict[car][2],
+                                                         reward, actions_dict[car][0], new_speed,
+                                                         new_age, done))
                 score += reward
 
                 # if total_steps >= batch_size:
                 #     agent.train(batch_size=batch_size)
-
 
                 if total_steps >= BATCH_SIZE:
                     self.optimize_model(iteration % 4 == 0)
