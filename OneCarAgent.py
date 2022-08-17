@@ -4,18 +4,31 @@ from NormalEnvironment import JUNCTION_SIZE
 from NormalCar import DECELERATION_FACTOR
 # LEN_OF_GREEN = 100
 # DELAY_BETWEEN_GREENS = 15
+from featureExtractors import SimpleExtractor
+from qlearningAgents import ApproximateQAgent
 
 
 class OneCarAgent(Agent):
 
+
     def __init__(self, env):
         super().__init__(env)
         self.len_without_junc = self.env.length - JUNCTION_SIZE - 1
+        self.q_agent = ApproximateQAgent(SimpleExtractor())
+        self.last_report = None
 
     def send_control_signal(self):
-        # speed_state, age_state = self.env.get_state()
+        # reward = state.getScore() - self.lastState.getScore()
+        # self.observeTransition(self.lastState, self.lastAction, state, reward)
+        actions = {}
         for car in self.env.cars_iterator():
-            if self.is_closest_car(car):  # agent cars
+            if self.is_closest_car(car) and self.last_report is not None:  # agent cars
+                new_speed, new_age = self.env.get_state()
+                self.q_agent.update(self.last_report.speed_state, self.last_report.age_state, self.last_report.actions[car],
+                                    new_speed, new_age, self.env.get_score_for_round(self.last_report))
+                action = self.q_agent.getAction(speed_state, age_state)
+                actions[car] = action
+                car.update_speed(action)
                 continue
             closest = self.get_closest_car_in_path(car)  # , self.len_without_junc - car.dist)
             if car.speed ** 2 + DECELERATION_FACTOR * closest >= -3:
@@ -23,6 +36,7 @@ class OneCarAgent(Agent):
             # elif(closest):
             else:
                 car.update_speed(1)
+        self.last_report = self.env.propegate(actions)
         # self.counter += 1
         # if (self.counter % LEN_OF_GREEN) > LEN_OF_GREEN - DELAY_BETWEEN_GREENS:
         #     self.all_red = True

@@ -19,7 +19,7 @@ class JunctionEnvironment(ABC):
         score = 0
 
     @abstractmethod
-    def propagate(self):
+    def propagate(self, actions):
         """
         propagate all the cars in the environment create new car and checks for coalitions deals with them and update score
         :return: Report

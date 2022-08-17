@@ -9,3 +9,6 @@ class RegularReport(Report):
     collisions_in_paths: list
     collisions_in_Junction: list
     late_cars: list
+    speed_state: list
+    age_state: list
+    actions: dict

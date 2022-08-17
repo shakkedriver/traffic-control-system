@@ -53,7 +53,7 @@ class NormalEnvironment(JunctionEnvironment):
             result += list(product(path1, path2))
         return result
 
-    def propagate(self):
+    def propagate(self, actions):
         """
         propagate all the cars in the environment create new car and checks for coalitions deals with them and update score
         :return: Report
@@ -72,7 +72,9 @@ class NormalEnvironment(JunctionEnvironment):
             self.delete_car(second)
         self.generate_new_cars()
         late_cars = self.__get_late_cars_and_increment_age()
-        return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction, late_cars)
+        speed_state, age_state = self.get_state()
+        return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction,
+                             late_cars, speed_state, age_state, actions)
 
     def __move_cars(self):
         """

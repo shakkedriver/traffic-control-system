@@ -119,15 +119,15 @@ class PacmanQAgent(QLearningAgent):
 
     def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
         """
-    These default parameters can be changed from the pacman.py command line.
-    For example, to change the exploration rate, try:
-        python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
+        These default parameters can be changed from the pacman.py command line.
+        For example, to change the exploration rate, try:
+            python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
 
-    alpha    - learning rate
-    epsilon  - exploration rate
-    gamma    - discount factor
-    numTraining - number of training episodes, i.e. no learning after these many episodes
-    """
+        alpha    - learning rate
+        epsilon  - exploration rate
+        gamma    - discount factor
+        numTraining - number of training episodes, i.e. no learning after these many episodes
+        """
         args['epsilon'] = epsilon
         args['gamma'] = gamma
         args['alpha'] = alpha
@@ -137,10 +137,10 @@ class PacmanQAgent(QLearningAgent):
 
     def getAction(self, state):
         """
-    Simply calls the getAction method of QLearningAgent and then
-    informs parent of action for Pacman.  Do not change or remove this
-    method.
-    """
+        Simply calls the getAction method of QLearningAgent and then
+        informs parent of action for Pacman.  Do not change or remove this
+        method.
+        """
         action = QLearningAgent.getAction(self, state)
         self.doAction(state, action)
         return action
@@ -165,9 +165,9 @@ class ApproximateQAgent(PacmanQAgent):
 
     def getQValue(self, state, action):
         """
-      Should return Q(state,action) = w * featureVector
-      where * is the dotProduct operator
-    """
+        Should return Q(state,action) = w * featureVector
+        where * is the dotProduct operator
+        """
         features = self.featExtractor.getFeatures(state, action)
         my_sum = 0
         for f in features:
@@ -176,8 +176,8 @@ class ApproximateQAgent(PacmanQAgent):
 
     def update(self, state, action, nextState, reward):
         """
-       Should update your weights based on transition
-    """
+        Should update your weights based on transition
+        """
         new_val = self.alpha * (
                     reward + self.discount * self.getValue(nextState) - self.getQValue(state, action))
         features = self.featExtractor.getFeatures(state, action)
