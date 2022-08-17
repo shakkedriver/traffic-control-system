@@ -30,15 +30,15 @@ def main(disp):
 
 
 if __name__ == '__main__':
-    random.seed(3)
+    random.seed(9090999)
     np.random.seed(3)
     torch.manual_seed(3)
 
     env = NormalEnvironment(2, 150)
-    agent = DQNAgent(env, 0, 3,get_model(ttt))
+    agent = DQNAgent(env, 0.0, 3,get_model("3637"))
     # agent = LightTrafficAgent(env)
     # agent = LightTrafficAgent(env)
-    # agent = RandomAgent(env)
+    # agent = RandomAgent(env
     # agent = AcceleratingAgent(env)
     if not USE_DISPLAY:
         in_path = 0

@@ -94,7 +94,7 @@ class DQNTrainer:
         reward_batch = torch.stack([torch.tensor(d["reward"]) for d in batch]).to(device).double()
         next_state_batch = torch.stack([torch.tensor(d["next_state"]) for d in batch]).to(device).double()
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        next_state_values = self.target_net(next_state_batch).max(1)[0].detach()
+        next_state_values = self.target_net(next_state_batch).max(1)[0].detach()*DISCOUNT_FACTOR
         # Compute the expected Q values
         expected_state_action_values = (next_state_values * GAMMA) + reward_batch
         criterion = nn.MSELoss()
