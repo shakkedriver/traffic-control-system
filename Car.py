@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 
-CAR_MAX_SPEED = 12
+CAR_MAX_SPEED = 5
 # @dataclass
 class Car(ABC):
     """

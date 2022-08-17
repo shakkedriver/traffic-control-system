@@ -9,6 +9,7 @@ from NormalEnvironment import NormalEnvironment
 from Display import DisplayGUI
 from DQNAgent import DQNAgent
 from LightTrafficAgent import LightTrafficAgent
+from OneCarAgent import OneCarAgent
 from RandomAgent import RandomAgent
 from AcceleratingAgent import AcceleratingAgent
 
@@ -20,6 +21,7 @@ def get_model(path):
     if path is not None:
         model.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
     return model
+
 def main(disp):
     agent.send_control_signal()
     r = env.propagate()
@@ -30,14 +32,14 @@ def main(disp):
 
 
 if __name__ == '__main__':
-    random.seed(3)
-    np.random.seed(3)
-    torch.manual_seed(3)
+    random.seed(1)
+    np.random.seed(1)
+    torch.manual_seed(1)
 
-    env = NormalEnvironment(2, 150)
-    agent = DQNAgent(env, 0, 3,get_model(ttt))
+    env = NormalEnvironment(2)
+    # agent = DQNAgent(env, 0, 3,get_model("PATH"))
     # agent = LightTrafficAgent(env)
-    # agent = LightTrafficAgent(env)
+    agent = OneCarAgent(env)
     # agent = RandomAgent(env)
     # agent = AcceleratingAgent(env)
     if not USE_DISPLAY:
@@ -53,6 +55,6 @@ if __name__ == '__main__':
             e = env.get_state()[0]
             #print(env.get_state()[0])
             # print(r)
-        print(f"{in_path=}, {in_inters=}, {late=}")
+        # print(f"{in_path=}, {in_inters=}, {late=}")
     displayer = DisplayGUI(env, main)
 #

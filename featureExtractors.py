@@ -11,7 +11,7 @@
 # from game import Directions, Actions
 # import util
 from Counter import Counter
-LENGTH_OF_PATH = 150
+from NormalEnvironment import LENGTH_OF_PATH
 from NormalEnvironment import JUNCTION_SIZE
 from NormalCarFactory import NORMAL_CAR_MAX_INIT_SPEED
 import numpy as np

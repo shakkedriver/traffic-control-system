@@ -5,7 +5,7 @@ import numpy as np
 from NormalCar import NormalCar
 from Car import CAR_MAX_SPEED
 NORMAL_CAR_MAX_INIT_SPEED = CAR_MAX_SPEED
-NORMAL_CAR_MIN_INIT_SPEED = 3
+NORMAL_CAR_MIN_INIT_SPEED = 1
 STOP_NEW_CARS_IF_CLOSE = False
 
 class NormalCarFactory(CarFactory):

@@ -5,22 +5,22 @@ from RegularReport import RegularReport
 import numpy as np
 
 # reward:
-PATH_COLLISION_PENALTY = 100000
-JUNCTION_COLLISION_PENALTY = 100000
+PATH_COLLISION_PENALTY = 10000
+JUNCTION_COLLISION_PENALTY = 10000
 LATE_PENALTY = 25
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
 REWARD_FOR_SPEED = 1000 / 150
-JUNCTION_SIZE = 25
+JUNCTION_SIZE = 6
 REWARD_FOR_PASSED_CAR = 1000
 # frequency parameters:
-MU_OF_CAR_CREATION = 0.2
-SIGMA_OF_CAR_CREATION = 0.2
-MIN_FREQ = 0.1
+MU_OF_CAR_CREATION = 0.08
+SIGMA_OF_CAR_CREATION = 0.04
+MIN_FREQ = 0.02
 MAX_FREQ = 0.3
-
+LENGTH_OF_PATH = 50
 
 class NormalEnvironment(JunctionEnvironment):
-    def __init__(self, num_paths, length):
+    def __init__(self, num_paths, length=LENGTH_OF_PATH):
         super().__init__(num_paths, length)
         self.car_factories = [NormalCarFactory(path, self.get_creation_frequency()) for path in range(num_paths)]
 
