@@ -6,10 +6,10 @@ import numpy as np
 
 # reward:
 PATH_COLLISION_PENALTY = 0
-JUNCTION_COLLISION_PENALTY = 100
+JUNCTION_COLLISION_PENALTY = 500
 LATE_PENALTY = 10
 LATE_THRESHOLD = 100  # should be some fraction of the length of the environment #todo
-REWARD_FOR_SPEED = 1
+REWARD_FOR_SPEED = 5
 JUNCTION_SIZE = 8
 REWARD_FOR_PASSED_CAR = 10
 
@@ -20,10 +20,12 @@ MIN_FREQ = 0.02
 MAX_FREQ = 0.3
 LENGTH_OF_PATH = 50
 
+
 class NormalEnvironment(JunctionEnvironment):
     def __init__(self, num_paths, length=LENGTH_OF_PATH):
         super().__init__(num_paths, length)
         self.car_factories = [NormalCarFactory(path, self.get_creation_frequency()) for path in range(num_paths)]
+        self.last_report = None
 
     def get_creation_frequency(self):
         x = np.random.normal(MU_OF_CAR_CREATION, SIGMA_OF_CAR_CREATION, 1)[0]
@@ -52,6 +54,8 @@ class NormalEnvironment(JunctionEnvironment):
                             for path in self.cars]
         for path1, path2 in combinations(cars_in_junction, 2):
             result += list(product(path1, path2))
+        if result != []:
+            print("collision happened")
         return result
 
     def propagate(self, actions):
@@ -74,8 +78,15 @@ class NormalEnvironment(JunctionEnvironment):
         self.generate_new_cars()
         late_cars = self.__get_late_cars_and_increment_age()
         speed_state, age_state = self.get_state()
-        return RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction,
+        self.last_report = RegularReport(list_of_passed_cars, collisions_in_paths, collisions_in_junction,
                              late_cars, speed_state, age_state, actions)
+        return self.last_report
+
+    def get_last_report(self, actions):
+        if self.last_report is None:
+            return None
+        self.last_report.actions = actions
+        return self.last_report
 
     def __move_cars(self):
         """

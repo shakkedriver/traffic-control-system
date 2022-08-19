@@ -45,7 +45,7 @@ class OneCarAgent(Agent):
             else:
                 car.update_speed(1)
         self.last_report = self.new_report
-        self.new_report = self.env.propagate(actions)
+        self.new_report = self.env.get_last_report(actions)
 
     def get_closest_car_in_path(self, car):
         speed_state, age_state = self.env.get_state()

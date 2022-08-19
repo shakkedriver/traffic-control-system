@@ -185,6 +185,8 @@ class ApproximateQAgent(PacmanQAgent):
         features = self.featExtractor.getFeatures(state, action)
         for f in features:
             self.weights[f] += new_val * features[f]
+        if features["collision"] > 0:
+            print("collision detected")
         print(reward, self.weights)
 
     def final(self, state):
