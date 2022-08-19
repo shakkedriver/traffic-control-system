@@ -65,8 +65,8 @@ class QLearningAgent(ReinforcementAgent):
             if cur_val > max_val:
                 max_val = cur_val
                 max_action = action
-        if max_action is None:
-            return 0.0
+        # if max_action is None:
+        #     return max_val
         return max_val
 
     def getPolicy(self, state):
@@ -80,6 +80,8 @@ class QLearningAgent(ReinforcementAgent):
             return None
         max_val = self.getValue(state)
         max_actions = [a for a in actions if self.getQValue(state, a) == max_val]
+        if max_actions == []:
+            self.getValue(state)
         return random.choice(max_actions)
 
     def getAction(self, state):
@@ -183,6 +185,7 @@ class ApproximateQAgent(PacmanQAgent):
         features = self.featExtractor.getFeatures(state, action)
         for f in features:
             self.weights[f] += new_val * features[f]
+        print(reward, self.weights)
 
     def final(self, state):
         """Called at the end of each game."""

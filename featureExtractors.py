@@ -18,7 +18,7 @@ import numpy as np
 
 
 class FeatureExtractor:
-    def getFeatures(self, speed_state, age_state, action, car):
+    def getFeatures(self, state, action):
         """
         Returns a dict from features to counts
         Usually, the count will just be 1.0 for
@@ -67,73 +67,53 @@ class SimpleExtractor(FeatureExtractor):
     - whether a ghost is one step away
     """
 
-    def getFeatures(self, speed_state, age_state, speed_change, car):
+    def getFeatures(self, report, action):
         features = Counter()
-
-        # features of me:
-        car_speed = max(0, min(car.speed + speed_change, car.max_speed))
-        features["my_speed"] = car_speed
-        my_age = car.age + 1
-        # features["my_age"] = my_age
-
-        my_cur_dist = LENGTH_OF_PATH - JUNCTION_SIZE - car.dist - 1
-        my_dist = my_cur_dist - car_speed
-        features["my_dist"] = my_dist
-
-        my_time = my_dist / car_speed
-        # features["my_time"] = my_time
-
-        # last_cars = np.where(speed_state[car.path] != -1)
-        # if len(last_cars) > 1:
-        #     last_car = car.dist - last_cars[-2]
-        # else:
-        #     last_car = car.dist
-        # features["my_last_car"] = last_car
-
-        # features of the other car:
-        other_path = 1 - car.path
-        other_last_cars = np.where(speed_state[other_path] != -1)
-        if len(other_last_cars) == 0:
-            other_speed = NORMAL_CAR_MAX_INIT_SPEED
-            other_age = 0
-            other_dist = LENGTH_OF_PATH - JUNCTION_SIZE
-            other_time = (LENGTH_OF_PATH - JUNCTION_SIZE) / NORMAL_CAR_MAX_INIT_SPEED
-
-            # features["other_speed"] = NORMAL_CAR_MAX_INIT_SPEED
-            # features["other_age"] = 0
-            # features["other_dist"] = LENGTH_OF_PATH - JUNCTION_SIZE
-            # features["other_time"] = (LENGTH_OF_PATH - JUNCTION_SIZE) / NORMAL_CAR_MAX_INIT_SPEED
-            # features["other_last_car"] = LENGTH_OF_PATH - JUNCTION_SIZE
+        speed_state = report.speed_state
+        path0_cars = np.where(speed_state[0] != -1)
+        if len(path0_cars[0]) == 0:
+            speed0 = NORMAL_CAR_MAX_INIT_SPEED
+            # features["speed_0"] = NORMAL_CAR_MAX_INIT_SPEED
+            dist0 = LENGTH_OF_PATH - JUNCTION_SIZE
+            features["dist_0"] = dist0
+            time0 = dist0 / NORMAL_CAR_MAX_INIT_SPEED
+            features["age_0"] = 0
         else:
-            other_car = other_last_cars[-1]
-            other_speed = speed_state[other_path][other_car]
-            other_age = age_state[other_path][other_car] + 1
+            car0 = path0_cars[0][-1]
+            speed0 = speed_state[0][car0] + action[0]
+            # features["speed_0"] = speed_state[0][car0] + action[0]
+            dist0 = LENGTH_OF_PATH - JUNCTION_SIZE - car0 - speed0
+            features["dist_0"] = dist0
+            time0 = dist0 / speed0
+            features["age_0"] = report.age_state[0][car0] / 50
 
-            # features["other_speed"] = speed_state[other_path][other_car]
-            # features["other_age"] = age_state[other_path][other_car] + 1
-
-            current_other_dist = LENGTH_OF_PATH - JUNCTION_SIZE - other_car - 1
-            other_dist = current_other_dist - other_speed
-            # features["other_dist"] = other_dist
-
-            other_time = other_dist / other_speed
-            # features["other_time"] = other_time
-
-            # last_cars_other = np.where(speed_state[car.path] != -1)
-            # if len(other_last_cars) > 1:
-            #     last_car_other = other_car - last_cars_other[-2]
-            # else:
-            #     last_car_other = other_car
-            # features["other_last_car"] = last_car_other
-        if my_time < other_time:
-            first_speed = car_speed
+        path1_cars = np.where(speed_state[1] != -1)
+        if len(path1_cars[0]) == 0:
+            speed1 = NORMAL_CAR_MAX_INIT_SPEED
+            # features["speed_1"] = NORMAL_CAR_MAX_INIT_SPEED
+            dist1 = LENGTH_OF_PATH - JUNCTION_SIZE
+            features["dist_1"] = dist1
+            time1 = dist1 / NORMAL_CAR_MAX_INIT_SPEED
+            features["age_1"] = 0
         else:
-            first_speed = other_speed
+            car1 = path1_cars[0][-1]
+            speed1 = speed_state[1][car1] + action[1]
+            # features["speed_1"] = speed_state[1][car1] + action[1]
+            dist1 = LENGTH_OF_PATH - JUNCTION_SIZE - car1 - speed1
+            #       LENGTH_OF_PATH - JUNCTION_SIZE < car.dist + features["speed"]
+            features["dist_1"] = dist1
+            time1 = dist1 / speed1
+            features["age_1"] = report.age_state[1][car1] / 50
+
+        if time0 < time1:
+            first_speed = speed0
+        else:
+            first_speed = speed1
         first_time = JUNCTION_SIZE // first_speed + 1
-        time_diff = min(first_time, abs(other_time - my_time))
+        time_diff = min(first_time, abs(time0 - time1))
 
         features["time_diff"] = time_diff
         features["bias"] = 1.0
-        features["collision"] = int(my_dist >= LENGTH_OF_PATH - JUNCTION_SIZE and other_dist >= LENGTH_OF_PATH - JUNCTION_SIZE)
+        features["collision"] = int(-JUNCTION_SIZE < dist0 < 0 and -JUNCTION_SIZE < dist1 < 0)
         features.divideAll(10.0)
         return features

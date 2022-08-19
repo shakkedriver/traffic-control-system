@@ -24,7 +24,7 @@ def get_model(path):
 
 def main(disp):
     agent.send_control_signal()
-    r = env.propagate()
+    r = env.propagate([])
     e = env.get_state()[0]
     # print(env.get_state()[0])
     # print(r)
@@ -43,16 +43,18 @@ if __name__ == '__main__':
     # agent = RandomAgent(env)
     # agent = AcceleratingAgent(env)
     if not USE_DISPLAY:
-        in_path = 0
-        in_inters =0
-        late = 0
-        for i in range(500):
+        while True:
             agent.send_control_signal()
-            r = env.propagate()
-            in_path+=len(r.collisions_in_paths)
-            in_inters+=len(r.collisions_in_Junction)
-            late+=len(r.late_cars)
-            e = env.get_state()[0]
+        # in_path = 0
+        # in_inters =0
+        # late = 0
+        # for i in range(500):
+        #     agent.send_control_signal()
+        #     r = env.propagate([])
+        #     in_path+=len(r.collisions_in_paths)
+        #     in_inters+=len(r.collisions_in_Junction)
+        #     late+=len(r.late_cars)
+        #     e = env.get_state()[0]
             #print(env.get_state()[0])
             # print(r)
         # print(f"{in_path=}, {in_inters=}, {late=}")

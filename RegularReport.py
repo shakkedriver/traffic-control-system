@@ -11,4 +11,4 @@ class RegularReport(Report):
     late_cars: list
     speed_state: list
     age_state: list
-    actions: dict
+    actions: list

@@ -7,42 +7,45 @@ from NormalCar import DECELERATION_FACTOR
 from featureExtractors import SimpleExtractor
 from qlearningAgents import ApproximateQAgent
 
+POSSIBLE_ACTIONS = [[-1, -1],
+                    [-1, 0],
+                    [-1, 1],
+                    [0, -1],
+                    [0, 0],
+                    [0, 1],
+                    [1, -1],
+                    [1, 0],
+                    [1, 1]]
+
 
 class OneCarAgent(Agent):
-
 
     def __init__(self, env):
         super().__init__(env)
         self.len_without_junc = self.env.length - JUNCTION_SIZE - 1
-        self.q_agent = ApproximateQAgent(SimpleExtractor())
+        self.q_agent = ApproximateQAgent(extractor=SimpleExtractor(), actionFn=lambda s: POSSIBLE_ACTIONS)
         self.last_report = None
+        self.new_report = None
 
     def send_control_signal(self):
-        # reward = state.getScore() - self.lastState.getScore()
-        # self.observeTransition(self.lastState, self.lastAction, state, reward)
-        actions = {}
+        if self.last_report is not None and self.new_report is not None:
+            self.q_agent.update(self.last_report, self.new_report.actions,
+                                self.new_report, self.env.get_score_for_round(self.new_report))
+        if self.new_report is None:
+            actions = [0, 0]
+        else:
+            actions = self.q_agent.getAction(self.new_report)  # [ , ]
         for car in self.env.cars_iterator():
             if self.is_closest_car(car) and self.last_report is not None:  # agent cars
-                new_speed, new_age = self.env.get_state()
-                self.q_agent.update(self.last_report.speed_state, self.last_report.age_state, self.last_report.actions[car],
-                                    new_speed, new_age, self.env.get_score_for_round(self.last_report))
-                action = self.q_agent.getAction(speed_state, age_state)
-                actions[car] = action
-                car.update_speed(action)
+                car.update_speed(actions[car.path])
                 continue
             closest = self.get_closest_car_in_path(car)  # , self.len_without_junc - car.dist)
             if car.speed ** 2 + DECELERATION_FACTOR * closest >= -3:
                 car.update_speed(-1)
-            # elif(closest):
             else:
                 car.update_speed(1)
-        self.last_report = self.env.propegate(actions)
-        # self.counter += 1
-        # if (self.counter % LEN_OF_GREEN) > LEN_OF_GREEN - DELAY_BETWEEN_GREENS:
-        #     self.all_red = True
-        # if (self.counter % LEN_OF_GREEN) == 0:
-        #     self.all_red = False
-        #     self.cur_green_path = (self.cur_green_path + 1) % self.env.num_paths
+        self.last_report = self.new_report
+        self.new_report = self.env.propagate(actions)
 
     def get_closest_car_in_path(self, car):
         speed_state, age_state = self.env.get_state()

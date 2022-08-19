@@ -55,7 +55,7 @@ class DisplayGUI:
         self.func = func
         self.root = tk.Tk()
         self.init_state = self.env.get_state()[0] + 1
-        self.init_report = RegularReport([], [], [], [])
+        self.init_report = RegularReport([], [], [], [], [], [] ,[])
         self.main_frame = tk.Frame(self.root, height=self.init_state.shape[0], width=self.init_state.shape[1])
         self.report_label = tk.Label(self.root)
         self.update(self.init_state, self.init_report)
