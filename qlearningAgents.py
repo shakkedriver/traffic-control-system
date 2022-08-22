@@ -10,8 +10,9 @@
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
 import random
-
-
+import pickle
+EXIST_WEIGHT = True
+NUM_OF_TRAIN = 1000
 # import random,util,math
 
 class QLearningAgent(ReinforcementAgent):
@@ -119,7 +120,7 @@ class QLearningAgent(ReinforcementAgent):
 class PacmanQAgent(QLearningAgent):
     """Exactly the same as QLearningAgent, but with different default parameters"""
 
-    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon=0.05, gamma=0.6, alpha=0.1, numTraining=NUM_OF_TRAIN, **args):
         """
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
@@ -133,7 +134,10 @@ class PacmanQAgent(QLearningAgent):
         args['epsilon'] = epsilon
         args['gamma'] = gamma
         args['alpha'] = alpha
-        args['numTraining'] = numTraining
+        if EXIST_WEIGHT:
+            args['numTraining'] = -1
+        else:
+            args['numTraining'] = numTraining
         self.index = 0  # This is always Pacman
         QLearningAgent.__init__(self, **args)
 
@@ -161,6 +165,10 @@ class ApproximateQAgent(PacmanQAgent):
         self.featExtractor = extractor  # todo: changed
         PacmanQAgent.__init__(self, **args)
         self.weights = Counter()
+        if EXIST_WEIGHT:
+            with open("weights.pkl", "rb") as f:
+                self.weights = pickle.load(f)
+            return
 
         # You might want to initialize weights here.
         "*** YOUR CODE HERE ***"
@@ -180,14 +188,26 @@ class ApproximateQAgent(PacmanQAgent):
         """
         Should update your weights based on transition
         """
+        if self.numTraining == 0:
+            with open("weights.pkl", "wb") as f:
+                pickle.dump(self.weights, f)
+            return
+        elif self.numTraining < 0:
+            return
         new_val = self.alpha * (
                     reward + self.discount * self.getValue(nextState) - self.getQValue(state, action))
         features = self.featExtractor.getFeatures(state, action)
+        self.numTraining -= 1
+
         for f in features:
             self.weights[f] += new_val * features[f]
         if features["collision"] > 0:
             print("collision detected")
-        print(reward, self.weights)
+            # print("time_diff:", features["time_diff"])
+        # else:
+            # if np.random.uniform(0,1) > 0.05:
+            #     print("normal time_diff:", features["time_diff"])
+        print("training left:", self.numTraining, reward, self.weights)
 
     def final(self, state):
         """Called at the end of each game."""

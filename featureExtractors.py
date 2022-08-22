@@ -85,7 +85,7 @@ class SimpleExtractor(FeatureExtractor):
             if speed0 > 0:
                 time0 = dist0 / speed0
             else:
-                time0 = JUNCTION_SIZE
+                time0 = LENGTH_OF_PATH
             # features["age_0"] = report.age_state[0][car0] / 50
 
         path1_cars = np.where(speed_state[1] != -1)
@@ -104,7 +104,7 @@ class SimpleExtractor(FeatureExtractor):
             if speed1 > 0:
                 time1 = dist1 / speed1
             else:
-                time1 = JUNCTION_SIZE
+                time1 = LENGTH_OF_PATH
             # features["age_1"] = report.age_state[1][car1] / 50
         # features["speed_0"] = speed0
         # features["speed_1"] = speed1
@@ -116,8 +116,11 @@ class SimpleExtractor(FeatureExtractor):
         #     first_speed = speed1
         #     first_time = time1
         # first_time = JUNCTION_SIZE // (first_speed + 0.1) + 1
-        time_diff = min(JUNCTION_SIZE, abs(time0 - time1))
-
+        max_speed = max(speed1, speed0)
+        min_dist = min(dist0, dist1)
+        # time_diff = int(dist0 < LENGTH_OF_PATH - JUNCTION_SIZE and dist1 < LENGTH_OF_PATH - JUNCTION_SIZE) * max(min(abs(time0 - time1), (min_dist + JUNCTION_SIZE) / max_speed), 0)
+        time_diff = int(dist0 < LENGTH_OF_PATH - JUNCTION_SIZE and dist1 < LENGTH_OF_PATH - JUNCTION_SIZE) * min(abs(time0 - time1), JUNCTION_SIZE * 2 / NORMAL_CAR_MAX_INIT_SPEED)
+        # print(time_diff)
         features["time_diff"] = time_diff
         features["bias"] = 1.0
         features["collision"] = int(-JUNCTION_SIZE < dist0 < 0 and -JUNCTION_SIZE < dist1 < 0)

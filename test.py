@@ -45,6 +45,8 @@ if __name__ == '__main__':
     if not USE_DISPLAY:
         while True:
             agent.send_control_signal()
+            r = env.propagate([])
+
         # in_path = 0
         # in_inters =0
         # late = 0
