@@ -10,9 +10,9 @@
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
 import random
+import pickle
+import os
 
-
-# import random,util,math
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -40,7 +40,6 @@ class QLearningAgent(ReinforcementAgent):
         """You can initialize Q-values here..."""
         ReinforcementAgent.__init__(self, **args)
         self.q_values = Counter()
-        "*** YOUR CODE HERE ***"
 
     def getQValue(self, state, action):
         """
@@ -65,8 +64,8 @@ class QLearningAgent(ReinforcementAgent):
             if cur_val > max_val:
                 max_val = cur_val
                 max_action = action
-        if max_action is None:
-            return 0.0
+        # if max_action is None:
+        #     return max_val
         return max_val
 
     def getPolicy(self, state):
@@ -80,6 +79,8 @@ class QLearningAgent(ReinforcementAgent):
             return None
         max_val = self.getValue(state)
         max_actions = [a for a in actions if self.getQValue(state, a) == max_val]
+        if not max_actions:
+            self.getValue(state)
         return random.choice(max_actions)
 
     def getAction(self, state):
@@ -114,39 +115,40 @@ class QLearningAgent(ReinforcementAgent):
         self.q_values[(state, action)] = new_val
 
 
-class PacmanQAgent(QLearningAgent):
+class TrafficQAgent(QLearningAgent):
     """Exactly the same as QLearningAgent, but with different default parameters"""
 
-    def __init__(self, epsilon=0.05, gamma=0.8, alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon=0.05, gamma=0.6, alpha=0.1, numTraining=-1, weights_path='weights.pkl', **args):
         """
-    These default parameters can be changed from the pacman.py command line.
-    For example, to change the exploration rate, try:
-        python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
+        These default parameters can be changed from the pacman.py command line.
+        For example, to change the exploration rate, try:
+            python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
 
-    alpha    - learning rate
-    epsilon  - exploration rate
-    gamma    - discount factor
-    numTraining - number of training episodes, i.e. no learning after these many episodes
-    """
+        alpha    - learning rate
+        epsilon  - exploration rate
+        gamma    - discount factor
+        numTraining - number of training episodes, i.e. no learning after these many episodes
+        """
         args['epsilon'] = epsilon
         args['gamma'] = gamma
         args['alpha'] = alpha
         args['numTraining'] = numTraining
-        self.index = 0  # This is always Pacman
+        self.index = 0
+        self.weights_path = weights_path
         QLearningAgent.__init__(self, **args)
 
     def getAction(self, state):
         """
-    Simply calls the getAction method of QLearningAgent and then
-    informs parent of action for Pacman.  Do not change or remove this
-    method.
-    """
+        Simply calls the getAction method of QLearningAgent and then
+        informs parent of action for Pacman.  Do not change or remove this
+        method.
+        """
         action = QLearningAgent.getAction(self, state)
         self.doAction(state, action)
         return action
 
 
-class ApproximateQAgent(PacmanQAgent):
+class ApproximateQAgent(TrafficQAgent):
     """
      ApproximateQLearningAgent
 
@@ -155,19 +157,25 @@ class ApproximateQAgent(PacmanQAgent):
      should work as is.
   """
 
-    def __init__(self, extractor, **args):
-        self.featExtractor = extractor  # todo: changed
-        PacmanQAgent.__init__(self, **args)
+    def __init__(self, extractor, env, weights_path='weights.pkl', **args):
+        self.featExtractor = extractor
+        self.env = env
+        TrafficQAgent.__init__(self, **args)
         self.weights = Counter()
-
-        # You might want to initialize weights here.
-        "*** YOUR CODE HERE ***"
+        self.weights_path = weights_path
+        if self.numTraining <= 0:
+            if not os.path.exists(self.weights_path):
+                print("when not training, must specify a path to weights file")
+                exit(1)
+            with open(self.weights_path, "rb") as f:
+                self.weights = pickle.load(f)
+            return
 
     def getQValue(self, state, action):
         """
-      Should return Q(state,action) = w * featureVector
-      where * is the dotProduct operator
-    """
+        Should return Q(state,action) = w * featureVector
+        where * is the dotProduct operator
+        """
         features = self.featExtractor.getFeatures(state, action)
         my_sum = 0
         for f in features:
@@ -176,21 +184,34 @@ class ApproximateQAgent(PacmanQAgent):
 
     def update(self, state, action, nextState, reward):
         """
-       Should update your weights based on transition
-    """
+        Should update your weights based on transition
+        """
+        if self.numTraining == 0:
+            with open(self.weights_path, "wb") as f:
+                pickle.dump(self.weights, f)
+            return
+        elif self.numTraining < 0:
+            return
         new_val = self.alpha * (
                     reward + self.discount * self.getValue(nextState) - self.getQValue(state, action))
         features = self.featExtractor.getFeatures(state, action)
+        self.numTraining -= 1
+
         for f in features:
             self.weights[f] += new_val * features[f]
+        if features["collision"] > 0:
+            print("collision detected")
+            # print("time_diff:", features["time_diff"])
+        # else:
+            # if np.random.uniform(0,1) > 0.05:
+            #     print("normal time_diff:", features["time_diff"])
+        print("training left:", self.numTraining, reward, self.weights)
 
     def final(self, state):
         """Called at the end of each game."""
         # call the super-class final method
-        PacmanQAgent.final(self, state)
+        TrafficQAgent.final(self, state)
 
         # did we finish training?
         if self.episodesSoFar == self.numTraining:
-            # you might want to print your weights here for debugging
-            "*** YOUR CODE HERE ***"
             pass

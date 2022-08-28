@@ -1,0 +1,21 @@
+{
+  "reward_params" :
+  {
+    "PATH_COLLISION_PENALTY": 100000,
+    "JUNCTION_COLLISION_PENALTY": 100000,
+    "LATE_PENALTY": 25,
+    "LATE_THRESHOLD": 100,
+    "REWARD_FOR_SPEED": 7,
+    "JUNCTION_SIZE": 15,
+    "REWARD_FOR_PASSED_CAR": 1000
+  },
+ "frequency_params" :
+  {
+    "MU_OF_CAR_CREATION": 0.2,
+    "SIGMA_OF_CAR_CREATION": 0.2,
+    "MIN_FREQ": 0.1,
+    "MAX_FREQ": 0.3,
+    "STOP_NEW_CARS_IF_CLOSE": 0
+  },
+  "path_length": 100
+}

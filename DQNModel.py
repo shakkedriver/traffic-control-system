@@ -1,7 +1,7 @@
 import torch
-import torchvision
+# import torchvision
 import torch.nn as nn
-import torch.nn.functional as F
+# import torch.nn.functional as F
 
 
 class DQNModel(nn.Module):
@@ -11,7 +11,7 @@ class DQNModel(nn.Module):
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding='same')
         self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding='same')
 
-        self.linear1 = nn.Linear(2368, 300)
+        self.linear1 = nn.Linear(1600, 300)
         self.linear2 = nn.Linear(300, 3)
         self.max_pool = nn.MaxPool2d(kernel_size=(1, 2))
         self.lrelu = nn.LeakyReLU()
