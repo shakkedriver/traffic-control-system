@@ -76,12 +76,12 @@ class NormalEnvironment(JunctionEnvironment):
         self.last_report = None
 
         reward_params = self.params['reward_params']
+        self.junction_size = self.params['junction_size']
         self.path_collision_penalty = reward_params['PATH_COLLISION_PENALTY']
         self.junction_collision_penalty = reward_params['JUNCTION_COLLISION_PENALTY']
         self.late_penalty = reward_params['LATE_PENALTY']
         self.late_threshold = reward_params['LATE_THRESHOLD']
         self.reward_for_speed = reward_params['REWARD_FOR_SPEED']
-        self.junction_size = reward_params['JUNCTION_SIZE']
         self.reward_for_passed_car = reward_params['REWARD_FOR_PASSED_CAR']
 
         freq_params = self.params['frequency_params']

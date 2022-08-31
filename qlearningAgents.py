@@ -187,6 +187,7 @@ class ApproximateQAgent(TrafficQAgent):
         Should update your weights based on transition
         """
         if self.numTraining == 0:
+            self.numTraining = -1
             with open(self.weights_path, "wb") as f:
                 pickle.dump(self.weights, f)
             return

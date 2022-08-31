@@ -1,5 +1,6 @@
 import tkinter as tk
 import numpy as np
+import signal
 # from datetime import datetime as dt
 # import os
 # from PIL import ImageGrab
@@ -39,14 +40,15 @@ class DisplayGUI:
         self.root.mainloop()
 
     def update(self, state, report):
+        signal.signal(signal.SIGINT, lambda a, b: exit())
         to_sleep = 100
         self.main_frame.destroy()
         self.main_frame = tk.Frame(self.root, height=self.init_state.shape[1]*Y_FACTOR,
                                    width=self.init_state.shape[1]*X_FACTOR, bg="darkgrey")
-
         background_label = tk.Label(self.main_frame, bg='green',
-                                    height=int(self.init_state.shape[1] - self.env.junction_size*4.4)-1,
-                                    width=int((self.init_state.shape[1] - self.env.junction_size*1.8) * X_FACTOR / Y_FACTOR))
+                                    height=int(self.init_state.shape[1] - self.env.junction_size * 4.608) - 1,
+                                    width=int((self.init_state.shape[1] - self.env.junction_size * 2.31) * X_FACTOR / Y_FACTOR))
+
         background_label.place(x=0, y=0)
         junction_label = tk.Label(self.main_frame, bg='grey', height=self.env.junction_size*Y_FACTOR, width=self.env.junction_size*X_FACTOR)
         junction_label.place(y=(self.init_state.shape[1] + 1 - self.env.junction_size) * Y_FACTOR, x=(self.init_state.shape[1] + 1 - self.env.junction_size) * X_FACTOR)
